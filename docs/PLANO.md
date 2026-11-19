@@ -30,3 +30,7 @@ Agente visível, política de uso e termo de ciência, coleta mínima, retençã
 
 ## Estratégia
 Primeiro uso interno na nossa empresa; `org_id` já está em todas as tabelas para virar multi-tenant depois sem refazer o schema. O isolamento por organização é feito na camada de aplicação (toda query filtra por `org_id` da sessão).
+
+## Agente — decisões da v0.1
+- App de bandeja por usuário (sem serviço/admin) para validar a coleta; serviço + MSI ficam para a implantação em massa (Fase 2).
+- Fila local em JSON Lines em vez de SQLite (zero dependência nativa).
