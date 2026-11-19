@@ -35,3 +35,8 @@ npm run seed:demo                   # dados fictícios para ver o dashboard
 4. Porta 3000, domínio com HTTPS. As migrations rodam automaticamente na inicialização.
 
 Contrato do agente: [docs/AGENT-API.md](docs/AGENT-API.md).
+
+## Teste local no Windows (sem Docker)
+1. Instale Node 22+ e PostgreSQL 16 (guarde a senha do usuário `postgres`). Crie o banco: `createdb -U postgres foccus`.
+2. `cd web`, copie `.env.example` para `.env.local` e ajuste `DATABASE_URL` e `SESSION_SECRET`.
+3. `npm install` e `npm run dev` (as migrations rodam sozinhas) → http://localhost:3000

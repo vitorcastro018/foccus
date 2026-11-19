@@ -3,11 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "npm run migrate && next dev",
     "build": "next build",
     "start": "node scripts/migrate.mjs && next start",
-    "migrate": "node scripts/migrate.mjs",
-    "seed:demo": "node scripts/seed-demo.mjs"
+    "migrate": "node --env-file-if-exists=.env.local scripts/migrate.mjs",
+    "seed:demo": "node --env-file-if-exists=.env.local scripts/seed-demo.mjs"
   },
   "dependencies": {
     "next": "14.2.35",
