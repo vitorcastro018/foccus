@@ -1,0 +1,14 @@
+# Ambiente local de desenvolvimento. Em produção, o Easypanel provê Postgres e o app.
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: foccus
+      POSTGRES_PASSWORD: foccus
+      POSTGRES_DB: foccus
+    ports: ["5432:5432"]
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./db/migrations:/docker-entrypoint-initdb.d:ro
+volumes:
+  pgdata:

@@ -1,4 +1,5 @@
--- Foccus: schema inicial (multi-tenant com RLS)
+-- Foccus: schema inicial (Postgres puro). Multi-tenant desde já (org_id),
+-- mas o isolamento é feito na aplicação (sem RLS / sem Supabase).
 
 create table organizations (
   id uuid primary key default gen_random_uuid(),
@@ -8,13 +9,15 @@ create table organizations (
   created_at timestamptz not null default now()
 );
 
-create table members (
-  user_id uuid primary key references auth.users(id) on delete cascade,
+create table users (
+  id uuid primary key default gen_random_uuid(),
   org_id uuid not null references organizations(id) on delete cascade,
+  email text not null unique,
+  password_hash text not null,
   role text not null default 'admin' check (role in ('admin','manager','viewer')),
   created_at timestamptz not null default now()
 );
-create index on members(org_id);
+create index on users(org_id);
 
 create table groups (
   id uuid primary key default gen_random_uuid(),
@@ -68,26 +71,3 @@ create table app_sessions (
 );
 create index on app_sessions(org_id, started_at desc);
 create index on app_sessions(device_id, started_at desc);
-
--- RLS
-alter table organizations enable row level security;
-alter table members enable row level security;
-alter table groups enable row level security;
-alter table enrollment_tokens enable row level security;
-alter table devices enable row level security;
-alter table app_catalog enable row level security;
-alter table app_sessions enable row level security;
-
-create function current_org_ids() returns setof uuid
-language sql stable security definer set search_path = public as $$
-  select org_id from members where user_id = auth.uid()
-$$;
-
-create policy org_read on organizations for select using (id in (select current_org_ids()));
-create policy members_read on members for select using (org_id in (select current_org_ids()));
-create policy groups_all on groups for all using (org_id in (select current_org_ids())) with check (org_id in (select current_org_ids()));
-create policy devices_read on devices for select using (org_id in (select current_org_ids()));
-create policy catalog_all on app_catalog for all using (org_id in (select current_org_ids())) with check (org_id in (select current_org_ids()));
-create policy sessions_read on app_sessions for select using (org_id in (select current_org_ids()));
--- enrollment_tokens: sem policy = acesso apenas via service role (Edge Functions).
--- Escrita de devices/app_sessions: apenas via Edge Function de ingestão (service role).
