@@ -31,7 +31,11 @@ npm run seed:demo                   # dados fictícios para ver o dashboard
 ## Deploy no Easypanel
 1. Serviço **Postgres** (anote a connection string).
 2. Serviço **App** a partir deste repositório: Dockerfile `web/Dockerfile`, contexto na raiz.
-3. Variáveis: `DATABASE_URL`, `SESSION_SECRET`, `COOKIE_SECURE=true`, `APP_TZ=America/Sao_Paulo`.
+3. Variáveis (só `DATABASE_URL` é obrigatória):
+   - `DATABASE_URL` — connection string do serviço Postgres do Easypanel.
+   - `ADMIN_EMAIL` — cria o admin inicial no primeiro deploy. A senha é **gerada automaticamente** e impressa **uma vez** nos logs do app (ou defina `ADMIN_PASSWORD`). `ORG_NAME` define o nome da empresa.
+   - `SESSION_SECRET` — opcional: se ausente, é gerado no primeiro deploy e guardado no banco (persiste entre deploys).
+   - `COOKIE_SECURE=true` (somente com HTTPS) e `APP_TZ=America/Sao_Paulo`.
 4. Porta 3000, domínio com HTTPS. As migrations rodam automaticamente na inicialização.
 
 Contrato do agente: [docs/AGENT-API.md](docs/AGENT-API.md).

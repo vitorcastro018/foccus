@@ -19,4 +19,4 @@ COPY --from=build /app/.next/static ./.next/static
 COPY --from=build /app/scripts ./scripts
 COPY db/migrations ./db/migrations
 EXPOSE 3000
-CMD ["sh", "-c", "node scripts/migrate.mjs && node server.js"]
+CMD ["node", "scripts/start.mjs"]

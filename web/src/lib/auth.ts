@@ -7,7 +7,7 @@ const COOKIE = "foccus_session";
 const MAX_AGE = 60 * 60 * 24 * 7;
 
 function secret() {
-  const s = process.env.SESSION_SECRET;
+  const s = process.env.SESSION_SECRET || (process.env.NODE_ENV !== "production" ? "dev-only-secret-not-for-production" : undefined);
   if (!s || s.length < 16) throw new Error("SESSION_SECRET ausente ou curto (mín. 16 chars)");
   return s;
 }
