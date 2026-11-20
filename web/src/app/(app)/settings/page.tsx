@@ -7,8 +7,8 @@ import { revokeToken, saveOrg } from "./actions";
 
 export default async function Settings() {
   const s = requireSession();
-  const [org] = await q<{ name: string; retention_days: number; collect_window_titles: boolean }>(
-    "select name, retention_days, collect_window_titles from organizations where id=$1",
+  const [org] = await q<{ name: string; retention_days: number; collect_window_titles: boolean; collect_sites: boolean }>(
+    "select name, retention_days, collect_window_titles, collect_sites from organizations where id=$1",
     [s.orgId]
   );
   const tokens = await q<{ id: string; created_at: string; expires_at: string | null; revoked: boolean }>(
@@ -59,6 +59,10 @@ export default async function Settings() {
           <label className="flex items-center gap-3 text-sm">
             <input type="checkbox" name="titles" defaultChecked={org.collect_window_titles} disabled={!admin} className="h-4 w-4 accent-brand" />
             Coletar títulos de janela (podem conter dados sensíveis)
+          </label>
+          <label className="flex items-center gap-3 text-sm">
+            <input type="checkbox" name="sites" defaultChecked={org.collect_sites} disabled={!admin} className="h-4 w-4 accent-brand" />
+            Coletar sites acessados no navegador (o agente lê só o domínio da barra de endereços — nunca a URL completa)
           </label>
           <div className="max-w-xs">
             <label className="label">Retenção dos dados (dias)</label>

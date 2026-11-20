@@ -4,7 +4,7 @@ export const TZ = process.env.APP_TZ || "America/Sao_Paulo";
 export const ONLINE_WINDOW_MIN = 5;
 
 /** Início do período (dia local à meia-noite, N-1 dias atrás). */
-const PERIOD_START = `(date_trunc('day', now() at time zone $2) - (($3::int - 1) * interval '1 day')) at time zone $2`;
+export const PERIOD_START = `(date_trunc('day', now() at time zone $2) - (($3::int - 1) * interval '1 day')) at time zone $2`;
 
 export function parseDays(v: string | string[] | undefined): 1 | 7 | 30 {
   const n = Number(Array.isArray(v) ? v[0] : v);
@@ -107,8 +107,8 @@ export async function deviceDetail(orgId: string, id: string, days: number) {
       group by s.process_name, c.category order by sum(s.active_seconds) desc limit 20`,
     [orgId, TZ, days, id]
   );
-  const timeline = await q<{ process_name: string; window_title: string | null; started_at: string; ended_at: string; active_seconds: number }>(
-    `select process_name, window_title, started_at, ended_at, active_seconds
+  const timeline = await q<{ process_name: string; window_title: string | null; site: string | null; started_at: string; ended_at: string; active_seconds: number }>(
+    `select process_name, window_title, site, started_at, ended_at, active_seconds
        from app_sessions where org_id=$1 and device_id=$2 order by started_at desc limit 40`,
     [orgId, id]
   );

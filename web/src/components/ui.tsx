@@ -13,7 +13,7 @@ export function PageHeader({ title, subtitle, right }: { title: string; subtitle
   );
 }
 
-export function PeriodTabs({ base, days }: { base: string; days: number }) {
+export function PeriodTabs({ base, days, extra }: { base: string; days: number; extra?: string }) {
   const opts = [
     { d: 1, l: "Hoje" },
     { d: 7, l: "7 dias" },
@@ -24,7 +24,7 @@ export function PeriodTabs({ base, days }: { base: string; days: number }) {
       {opts.map((o) => (
         <Link
           key={o.d}
-          href={`${base}?d=${o.d}`}
+          href={`${base}?d=${o.d}${extra ? `&${extra}` : ""}`}
           className={`rounded-md px-3 py-1.5 text-sm transition ${
             days === o.d ? "bg-brand text-white" : "text-muted hover:text-white"
           }`}
@@ -36,12 +36,24 @@ export function PeriodTabs({ base, days }: { base: string; days: number }) {
   );
 }
 
-export function Stat({ label, value, hint, tone }: { label: string; value: string; hint?: string; tone?: "good" | "warn" }) {
+export function Stat({ label, value, hint, tone, delta }: {
+  label: string; value: string; hint?: string; tone?: "good" | "warn";
+  /** Variação vs período anterior. goodWhenUp=false para métricas em que subir é ruim (ex.: ociosidade). */
+  delta?: { text: string; up: boolean; goodWhenUp?: boolean } | null;
+}) {
+  const good = delta ? (delta.up === (delta.goodWhenUp ?? true)) : true;
   return (
     <div className="card">
       <p className="label">{label}</p>
       <p className={`mt-2 text-3xl font-semibold tracking-tight ${tone === "good" ? "text-good" : tone === "warn" ? "text-warn" : ""}`}>{value}</p>
-      {hint && <p className="mt-1 text-xs text-muted">{hint}</p>}
+      <div className="mt-1 flex items-center gap-2 text-xs text-muted">
+        {delta && (
+          <span className={`rounded-md px-1.5 py-0.5 font-medium ${good ? "bg-good/15 text-good" : "bg-bad/15 text-bad"}`}>
+            {delta.up ? "▲" : "▼"} {delta.text}
+          </span>
+        )}
+        {hint && <span>{hint}</span>}
+      </div>
     </div>
   );
 }

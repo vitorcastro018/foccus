@@ -30,6 +30,8 @@ internal static class Native
         return idleMs / 1000.0;
     }
 
+    public static IntPtr ForegroundHandle() => GetForegroundWindow();
+
     /// <summary>Processo (ex.: chrome.exe) e título da janela em foco. Null se não houver.</summary>
     public static (string Process, string Title)? Foreground()
     {

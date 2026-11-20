@@ -34,3 +34,7 @@ Primeiro uso interno na nossa empresa; `org_id` já está em todas as tabelas pa
 ## Agente — decisões da v0.1
 - App de bandeja por usuário (sem serviço/admin) para validar a coleta; serviço + MSI ficam para a implantação em massa (Fase 2).
 - Fila local em JSON Lines em vez de SQLite (zero dependência nativa).
+- Sites: sem extensão de navegador por decisão do produto; o agente lê o domínio da barra de endereços (UI Automation). Se a leitura se mostrar frágil em alguma versão de navegador, a alternativa é uma extensão gerenciada por GPO/Intune.
+
+## Painel — análises (v0.2)
+Dashboard com filtro por máquina e período: indicadores com variação vs período anterior, atividade (ativo/ocioso), tendência de foco e produtividade, produtividade por categoria (apps e sites), sites e apps mais usados, mapa de calor semana × hora (30 dias) e comparativo entre máquinas. Página da máquina adiciona linha do tempo do dia e jornada.

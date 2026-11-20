@@ -34,6 +34,6 @@ export async function POST(req: Request) {
 }
 
 async function policy(orgId: string) {
-  const [o] = await q<{ collect_window_titles: boolean }>("select collect_window_titles from organizations where id=$1", [orgId]);
-  return { collect_window_titles: !!o?.collect_window_titles, idle_threshold_seconds: 300, flush_interval_seconds: 60 };
+  const [o] = await q<{ collect_window_titles: boolean; collect_sites: boolean }>("select collect_window_titles, collect_sites from organizations where id=$1", [orgId]);
+  return { collect_window_titles: !!o?.collect_window_titles, collect_sites: !!o?.collect_sites, idle_threshold_seconds: 300, flush_interval_seconds: 60 };
 }

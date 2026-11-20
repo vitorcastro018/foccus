@@ -5,10 +5,18 @@ import { sha256 } from "@/lib/auth";
 export const dynamic = "force-dynamic";
 
 const MAX_BATCH = 500;
+const DOMAIN_RE = /^(?=.{1,200}$)([a-z0-9_-]+\.)*[a-z0-9_-]+(\.[a-z0-9_-]+|:\d+)?$/;
+
+/** Mantém só o domínio (sem esquema, caminho ou query), em minúsculas, sem "www.". */
+function cleanSite(v: unknown): string | null {
+  if (typeof v !== "string") return null;
+  const d = v.trim().toLowerCase().replace(/^www\./, "");
+  return DOMAIN_RE.test(d) ? d : null;
+}
 const MAX_SESSION_SECONDS = 24 * 3600;
 
 type InSession = {
-  process_name?: unknown; window_title?: unknown; started_at?: unknown; ended_at?: unknown;
+  process_name?: unknown; window_title?: unknown; site?: unknown; started_at?: unknown; ended_at?: unknown;
   active_seconds?: unknown; idle_seconds?: unknown;
 };
 
@@ -23,8 +31,9 @@ export async function POST(req: Request) {
   const body = await req.json().catch(() => null);
   const sessions: InSession[] = Array.isArray(body?.sessions) ? body.sessions.slice(0, MAX_BATCH) : [];
 
-  const [org] = await q<{ collect_window_titles: boolean }>("select collect_window_titles from organizations where id=$1", [dev.org_id]);
+  const [org] = await q<{ collect_window_titles: boolean; collect_sites: boolean }>("select collect_window_titles, collect_sites from organizations where id=$1", [dev.org_id]);
   const keepTitles = !!org?.collect_window_titles;
+  const keepSites = !!org?.collect_sites;
 
   const rows: unknown[][] = [];
   for (const s of sessions) {
@@ -39,13 +48,14 @@ export async function POST(req: Request) {
       dev.org_id, dev.id, name,
       keepTitles && s.window_title ? String(s.window_title).slice(0, 300) : null,
       start.toISOString(), end.toISOString(), Math.min(active, MAX_SESSION_SECONDS), Math.min(idle, MAX_SESSION_SECONDS),
+      keepSites ? cleanSite(s.site) : null,
     ]);
   }
 
   if (rows.length > 0) {
-    const values = rows.map((_, i) => `(${Array.from({ length: 8 }, (_, j) => `$${i * 8 + j + 1}`).join(",")})`).join(",");
+    const values = rows.map((_, i) => `(${Array.from({ length: 9 }, (_, j) => `$${i * 9 + j + 1}`).join(",")})`).join(",");
     await pool.query(
-      `insert into app_sessions(org_id, device_id, process_name, window_title, started_at, ended_at, active_seconds, idle_seconds) values ${values}`,
+      `insert into app_sessions(org_id, device_id, process_name, window_title, started_at, ended_at, active_seconds, idle_seconds, site) values ${values}`,
       rows.flat() as any[]
     );
   }
@@ -60,6 +70,6 @@ export async function POST(req: Request) {
   return NextResponse.json({
     accepted: rows.length,
     rejected: sessions.length - rows.length,
-    policy: { collect_window_titles: keepTitles, idle_threshold_seconds: 300, flush_interval_seconds: 60 },
+    policy: { collect_window_titles: keepTitles, collect_sites: keepSites, idle_threshold_seconds: 300, flush_interval_seconds: 60 },
   });
 }

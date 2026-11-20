@@ -14,6 +14,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <Link href="/dashboard">Dashboard</Link>
           <Link href="/devices">Máquinas</Link>
           <Link href="/apps">Apps</Link>
+          <Link href="/sites">Sites</Link>
           <Link href="/settings">Config</Link>
         </nav>
         <main className="mx-auto max-w-7xl p-6 md:p-10">{children}</main>

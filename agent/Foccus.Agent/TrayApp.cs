@@ -9,6 +9,7 @@ public sealed class TrayApp : ApplicationContext
     private readonly AgentConfig _cfg;
     private readonly SessionQueue _queue = new();
     private readonly Collector _collector;
+    private readonly BrowserSiteReader _sites;
     private readonly NotifyIcon _tray;
     private readonly System.Windows.Forms.Timer _tick = new() { Interval = 1000 };
     private readonly ToolStripMenuItem _status = new("Iniciando…") { Enabled = false };
@@ -21,7 +22,8 @@ public sealed class TrayApp : ApplicationContext
     public TrayApp(AgentConfig cfg)
     {
         _cfg = cfg;
-        _collector = new Collector(() => _cfg.Policy, _queue.Add);
+        _sites = new BrowserSiteReader(() => _cfg.Policy);
+        _collector = new Collector(() => _cfg.Policy, _queue.Add, _sites.Current);
 
         var menu = new ContextMenuStrip();
         var auto = new ToolStripMenuItem("Iniciar com o Windows") { Checked = Autostart.IsEnabled(), CheckOnClick = true };
@@ -101,6 +103,7 @@ public sealed class TrayApp : ApplicationContext
     private void Exit()
     {
         _tick.Stop();
+        _sites.Dispose();
         _collector.Flush();
         _tray.Visible = false;
         Log.Write("agente encerrado pelo usuário");

@@ -33,7 +33,8 @@ export async function revokeToken(fd: FormData) {
 export async function saveOrg(fd: FormData) {
   const s = requireAdmin();
   const titles = fd.get("titles") === "on";
+  const sites = fd.get("sites") === "on";
   const retention = Math.min(3650, Math.max(7, Number(fd.get("retention") ?? 90) || 90));
-  await q("update organizations set collect_window_titles=$2, retention_days=$3 where id=$1", [s.orgId, titles, retention]);
+  await q("update organizations set collect_window_titles=$2, retention_days=$3, collect_sites=$4 where id=$1", [s.orgId, titles, retention, sites]);
   revalidatePath("/settings");
 }

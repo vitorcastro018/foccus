@@ -6,6 +6,8 @@ public sealed class UsageSession
 {
     [JsonPropertyName("process_name")] public string ProcessName { get; set; } = "";
     [JsonPropertyName("window_title")] public string? WindowTitle { get; set; }
+    /// <summary>Domínio do site em foco quando o app é um navegador (somente host, nunca URL completa).</summary>
+    [JsonPropertyName("site")] public string? Site { get; set; }
     [JsonPropertyName("started_at")] public DateTime StartedAt { get; set; }
     [JsonPropertyName("ended_at")] public DateTime EndedAt { get; set; }
     [JsonPropertyName("active_seconds")] public int ActiveSeconds { get; set; }
@@ -23,11 +25,13 @@ public sealed class Collector
 
     private readonly Func<Policy> _policy;
     private readonly Action<UsageSession> _emit;
+    private readonly Func<string, string?> _site;
     private UsageSession? _cur;
     private DateTime _lastTick = DateTime.UtcNow;
     private double _active, _idle;
 
-    public Collector(Func<Policy> policy, Action<UsageSession> emit) { _policy = policy; _emit = emit; }
+    public Collector(Func<Policy> policy, Action<UsageSession> emit, Func<string, string?> site)
+    { _policy = policy; _emit = emit; _site = site; }
 
     public void Tick()
     {
@@ -44,7 +48,9 @@ public sealed class Collector
         if (locked) { Close(now); return; }
 
         var (proc, title) = fg!.Value;
+        var site = policy.CollectSites ? _site(proc) : null;
         if (_cur is null || !_cur.ProcessName.Equals(proc, StringComparison.OrdinalIgnoreCase) ||
+            !string.Equals(_cur.Site, site, StringComparison.OrdinalIgnoreCase) ||
             (now - _cur.StartedAt).TotalSeconds >= MaxSessionSeconds)
         {
             Close(now);
@@ -52,6 +58,7 @@ public sealed class Collector
             {
                 ProcessName = proc,
                 WindowTitle = policy.CollectWindowTitles ? title : null,
+                Site = site,
                 StartedAt = now,
             };
         }

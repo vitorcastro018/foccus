@@ -7,6 +7,7 @@ App de bandeja (.NET 8 / WinForms) que roda na sessão do usuário, **sem precis
 - Agrupa em sessões por aplicativo (máx. 5 min cada) e guarda em fila local (`%APPDATA%\Foccus\queue.jsonl`).
 - A cada ~60 s envia o lote para `/api/agent/ingest`; se estiver offline, mantém a fila e tenta de novo.
 - Tela bloqueada não conta. Suspensão/hibernação (intervalos > 10 s) não conta.
+- **Sites (sem extensão):** quando o app em foco é um navegador (Chrome, Edge, Brave, Opera, Vivaldi, Firefox), lê a barra de endereços via UI Automation e guarda **somente o domínio** (`github.com`) — nunca caminho, query ou título. Ligado/desligado em *Configurações → Coletar sites*. Melhor esforço: depende de o navegador expor a barra de endereços; falhas aparecem no `agent.log` ("site: não foi possível ler…").
 - **Não** captura teclas, telas nem conteúdo. Títulos de janela só se a política da organização permitir.
 - Ícone sempre visível na bandeja + aviso ao iniciar. Chave do dispositivo guardada com DPAPI.
 
