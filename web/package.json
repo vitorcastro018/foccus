@@ -6,7 +6,8 @@
     "dev": "npm run migrate && next dev",
     "build": "next build",
     "start": "node scripts/start.mjs",
-    "migrate": "node --env-file-if-exists=.env.local scripts/migrate.mjs",
+    "reset-password": "node --env-file-if-exists=.env.local scripts/reset-password.mjs",
+    "migrate":"node --env-file-if-exists=.env.local scripts/migrate.mjs",
     "seed:demo": "node --env-file-if-exists=.env.local scripts/seed-demo.mjs"
   },
   "dependencies": {
