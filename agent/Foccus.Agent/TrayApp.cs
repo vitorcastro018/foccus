@@ -10,6 +10,7 @@ public sealed class TrayApp : ApplicationContext
     private readonly SessionQueue _queue = new();
     private readonly Collector _collector;
     private readonly BrowserSiteReader _sites;
+    private readonly InputMonitor _input = new();
     private readonly NotifyIcon _tray;
     private readonly System.Windows.Forms.Timer _tick = new() { Interval = 1000 };
     private readonly ToolStripMenuItem _status = new("Iniciando…") { Enabled = false };
@@ -23,7 +24,8 @@ public sealed class TrayApp : ApplicationContext
     {
         _cfg = cfg;
         _sites = new BrowserSiteReader(() => _cfg.Policy);
-        _collector = new Collector(() => _cfg.Policy, _queue.Add, _sites.Current);
+        _collector = new Collector(() => _cfg.Policy, _queue.Add, _sites.Current,
+            IdleSeconds);
 
         var menu = new ContextMenuStrip();
         var auto = new ToolStripMenuItem("Iniciar com o Windows") { Checked = Autostart.IsEnabled(), CheckOnClick = true };
@@ -51,8 +53,19 @@ public sealed class TrayApp : ApplicationContext
             File.WriteAllText(Path.Combine(AgentConfig.Dir, ".firstrun"), DateTime.UtcNow.ToString("O"));
         }
         _tray.ShowBalloonTip(6000, "Foccus ativo",
-            "Este computador está sendo monitorado: uso de aplicativos e tempo de atividade. Sem captura de teclas ou telas.", ToolTipIcon.Info);
+            "Este computador está sendo monitorado: uso de aplicativos, sites e cliques (só o instante da atividade). Sem captura de teclas ou telas.", ToolTipIcon.Info);
         Log.Write("agente iniciado v" + ApiClient.Version);
+    }
+
+    /// <summary>Ociosidade conforme a política: só cliques, ou cliques + teclado (vale a atividade mais recente).</summary>
+    private double IdleSeconds()
+    {
+        var keyboard = _cfg.Policy.IdleMode == "clicks_keyboard";
+        _input.UseKeyboard(keyboard);
+        if (!_input.MouseActive) return Native.IdleSeconds();   // sem hook: cai para teclado+mouse do Windows
+        var idle = _input.ClickIdleSeconds();
+        if (keyboard && _input.KeyboardActive) idle = Math.Min(idle, _input.KeyIdleSeconds());
+        return idle;
     }
 
     private void OnTick()
@@ -104,6 +117,7 @@ public sealed class TrayApp : ApplicationContext
     {
         _tick.Stop();
         _sites.Dispose();
+        _input.Dispose();
         _collector.Flush();
         _tray.Visible = false;
         Log.Write("agente encerrado pelo usuário");

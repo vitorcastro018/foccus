@@ -22,7 +22,7 @@ Cabeçalho: `Authorization: Bearer <device_key>`. Também funciona como heartbea
   ]
 }
 ```
-Resposta: `{ "accepted": n, "rejected": n, "policy": { "collect_window_titles", "collect_sites", "idle_threshold_seconds", "flush_interval_seconds" } }`.
+Resposta: `{ "accepted": n, "rejected": n, "policy": { "collect_window_titles", "collect_sites", "idle_mode" (`clicks` | `clicks_keyboard`), "idle_threshold_seconds", "flush_interval_seconds" } }`.
 
 - Máximo de 500 sessões por lote; sessões > 24h ou no futuro são rejeitadas.
 - `window_title` só é gravado se a política da organização permitir.

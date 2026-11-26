@@ -8,7 +8,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <AssemblyName>Foccus</AssemblyName>
     <RootNamespace>Foccus.Agent</RootNamespace>
-    <Version>0.1.0</Version>
+    <Version>0.2.0</Version>
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
     <ApplicationHighDpiMode>SystemAware</ApplicationHighDpiMode>
     <InvariantGlobalization>true</InvariantGlobalization>

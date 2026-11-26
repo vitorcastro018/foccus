@@ -26,12 +26,13 @@ public sealed class Collector
     private readonly Func<Policy> _policy;
     private readonly Action<UsageSession> _emit;
     private readonly Func<string, string?> _site;
+    private readonly Func<double> _idleSeconds;
     private UsageSession? _cur;
     private DateTime _lastTick = DateTime.UtcNow;
     private double _active, _idle;
 
-    public Collector(Func<Policy> policy, Action<UsageSession> emit, Func<string, string?> site)
-    { _policy = policy; _emit = emit; _site = site; }
+    public Collector(Func<Policy> policy, Action<UsageSession> emit, Func<string, string?> site, Func<double> idleSeconds)
+    { _policy = policy; _emit = emit; _site = site; _idleSeconds = idleSeconds; }
 
     public void Tick()
     {
@@ -63,7 +64,7 @@ public sealed class Collector
             };
         }
 
-        if (Native.IdleSeconds() >= policy.IdleThresholdSeconds) _idle += dt; else _active += dt;
+        if (_idleSeconds() >= policy.IdleThresholdSeconds) _idle += dt; else _active += dt;
     }
 
     public void Flush() => Close(DateTime.UtcNow);

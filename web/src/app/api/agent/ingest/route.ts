@@ -31,7 +31,7 @@ export async function POST(req: Request) {
   const body = await req.json().catch(() => null);
   const sessions: InSession[] = Array.isArray(body?.sessions) ? body.sessions.slice(0, MAX_BATCH) : [];
 
-  const [org] = await q<{ collect_window_titles: boolean; collect_sites: boolean }>("select collect_window_titles, collect_sites from organizations where id=$1", [dev.org_id]);
+  const [org] = await q<{ collect_window_titles: boolean; collect_sites: boolean; idle_mode: string }>("select collect_window_titles, collect_sites, idle_mode from organizations where id=$1", [dev.org_id]);
   const keepTitles = !!org?.collect_window_titles;
   const keepSites = !!org?.collect_sites;
 
@@ -70,6 +70,6 @@ export async function POST(req: Request) {
   return NextResponse.json({
     accepted: rows.length,
     rejected: sessions.length - rows.length,
-    policy: { collect_window_titles: keepTitles, collect_sites: keepSites, idle_threshold_seconds: 300, flush_interval_seconds: 60 },
+    policy: { collect_window_titles: keepTitles, collect_sites: keepSites, idle_mode: org?.idle_mode ?? "clicks", idle_threshold_seconds: 300, flush_interval_seconds: 60 },
   });
 }

@@ -9,6 +9,8 @@ public sealed class Policy
 {
     [JsonPropertyName("collect_window_titles")] public bool CollectWindowTitles { get; set; }
     [JsonPropertyName("collect_sites")] public bool CollectSites { get; set; }
+    /// <summary>"clicks" (padrão) ou "clicks_keyboard".</summary>
+    [JsonPropertyName("idle_mode")] public string IdleMode { get; set; } = "clicks";
     [JsonPropertyName("idle_threshold_seconds")] public int IdleThresholdSeconds { get; set; } = 300;
     [JsonPropertyName("flush_interval_seconds")] public int FlushIntervalSeconds { get; set; } = 60;
 }

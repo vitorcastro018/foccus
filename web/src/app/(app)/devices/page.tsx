@@ -2,6 +2,7 @@ import Link from "next/link";
 import { requireSession } from "@/lib/auth";
 import { devicesList, parseDays } from "@/lib/queries";
 import { fmtAgo, fmtDuration } from "@/lib/format";
+import { AgentDownload } from "@/components/AgentDownload";
 import { Empty, PageHeader, PeriodTabs, StatusDot } from "@/components/ui";
 
 export default async function Devices({ searchParams }: { searchParams: { d?: string } }) {
@@ -11,7 +12,11 @@ export default async function Devices({ searchParams }: { searchParams: { d?: st
 
   return (
     <>
-      <PageHeader title="Máquinas" subtitle={`${rows.length} máquina(s) registrada(s).`} right={<PeriodTabs base="/devices" days={days} />} />
+      <PageHeader
+        title="Máquinas"
+        subtitle={`${rows.length} máquina(s) registrada(s).`}
+        right={<div className="flex items-center gap-3"><AgentDownload compact /><PeriodTabs base="/devices" days={days} /></div>}
+      />
       {rows.length === 0 ? (
         <Empty>
           Nenhuma máquina ainda. <Link href="/settings" className="text-brand2 underline">Gere um token de instalação</Link>.

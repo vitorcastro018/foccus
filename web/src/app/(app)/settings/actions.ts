@@ -35,6 +35,10 @@ export async function saveOrg(fd: FormData) {
   const titles = fd.get("titles") === "on";
   const sites = fd.get("sites") === "on";
   const retention = Math.min(3650, Math.max(7, Number(fd.get("retention") ?? 90) || 90));
-  await q("update organizations set collect_window_titles=$2, retention_days=$3, collect_sites=$4 where id=$1", [s.orgId, titles, retention, sites]);
+  const idleMode = fd.get("idle_mode") === "clicks_keyboard" ? "clicks_keyboard" : "clicks";
+  await q(
+    "update organizations set collect_window_titles=$2, retention_days=$3, collect_sites=$4, idle_mode=$5 where id=$1",
+    [s.orgId, titles, retention, sites, idleMode]
+  );
   revalidatePath("/settings");
 }

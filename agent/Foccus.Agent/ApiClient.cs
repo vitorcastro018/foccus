@@ -22,7 +22,7 @@ public sealed class UnauthorizedException : Exception { }
 
 public static class ApiClient
 {
-    public const string Version = "0.1.0";
+    public const string Version = "0.2.0";
     private static readonly HttpClient Http = new() { Timeout = TimeSpan.FromSeconds(20) };
 
     public static string NormalizeUrl(string url)
